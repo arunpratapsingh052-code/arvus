@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Clothing Brand – Coming Soon"
+version = "1.0.0"
+id = "artifacts/clothing-landing"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23741
+
+[services.development]
+run = "pnpm --filter @workspace/clothing-landing run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/clothing-landing", "run", "build" ]
+publicDir = "artifacts/clothing-landing/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23741"
+BASE_PATH = "/"
