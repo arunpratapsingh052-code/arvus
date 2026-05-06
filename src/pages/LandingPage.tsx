@@ -16,8 +16,8 @@ const emailSchema = z.object({
 
 type EmailFormValues = z.infer<typeof emailSchema>;
 
-const launchDate = new Date();
-launchDate.setDate(launchDate.getDate() + 90);
+// Use a fixed ISO date string for a consistent countdown across all users
+const LAUNCH_DATE = new Date("2025-08-01T00:00:00Z");
 
 const FEATURES = [
   {
@@ -37,8 +37,31 @@ const FEATURES = [
   },
 ];
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 50 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.15, duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+  }),
+};
+
+const letterVariants = {
+  hidden: { opacity: 0, y: 80, skewY: 6 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0, skewY: 0,
+    transition: { delay: 0.1 + i * 0.07, duration: 1, ease: [0.16, 1, 0.3, 1] },
+  }),
+};
+
+const SOCIAL_LINKS = [
+  { icon: SiInstagram, link: "#", label: "Instagram" },
+  { icon: SiX, link: "#", label: "X (Twitter)" },
+  { icon: SiTiktok, link: "#", label: "TikTok" }
+];
+
 export default function LandingPage() {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
@@ -48,7 +71,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     const tick = () => {
-      const diff = launchDate.getTime() - Date.now();
+      const diff = LAUNCH_DATE.getTime() - Date.now();
       if (diff > 0) {
         setTimeLeft({
           days: Math.floor(diff / 86400000),
@@ -56,6 +79,10 @@ export default function LandingPage() {
           minutes: Math.floor((diff / 60000) % 60),
           seconds: Math.floor((diff / 1000) % 60),
         });
+      } else {
+        // Handle the moment the countdown hits zero
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        // You could set a 'isLaunched' state here to update the UI
       }
     };
     tick();
@@ -68,25 +95,15 @@ export default function LandingPage() {
     defaultValues: { email: "" },
   });
 
-  const onSubmit = (_data: EmailFormValues) => {
+  const onSubmit = async (_data: EmailFormValues) => {
+    setIsSubmitting(true);
+    
+    // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
     toast({ title: "Access Granted", description: "You are on the ARVUS list." });
     form.reset();
-  };
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 50 },
-    visible: (i = 0) => ({
-      opacity: 1, y: 0,
-      transition: { delay: i * 0.15, duration: 0.9, ease: [0.16, 1, 0.3, 1] },
-    }),
-  };
-
-  const letterVariants = {
-    hidden: { opacity: 0, y: 80, skewY: 6 },
-    visible: (i: number) => ({
-      opacity: 1, y: 0, skewY: 0,
-      transition: { delay: 0.1 + i * 0.07, duration: 1, ease: [0.16, 1, 0.3, 1] },
-    }),
+    setIsSubmitting(false);
   };
 
   return (
@@ -141,7 +158,11 @@ export default function LandingPage() {
             animate="visible"
             className="overflow-hidden mb-2"
           >
-            <div className="flex" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(5rem,20vw,18rem)", lineHeight: 0.88, letterSpacing: "-0.02em", color: "#ffffff" }}>
+            <div 
+              className="flex" 
+              aria-label="ARVUS"
+              style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(5rem,20vw,18rem)", lineHeight: 0.88, letterSpacing: "-0.02em", color: "#ffffff" }}
+            >
               {"ARVUS".split("").map((ch, i) => (
                 <motion.span key={i} custom={i} variants={letterVariants} initial="hidden" animate="visible" className="inline-block">
                   {ch}
@@ -332,13 +353,14 @@ export default function LandingPage() {
               />
               <motion.button
                 type="submit"
+                disabled={isSubmitting}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="h-14 px-8 rounded-none bg-transparent border-0 text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300 font-medium tracking-[0.2em] uppercase text-xs group transition-all duration-300 btn-glow"
+                className="h-14 px-8 rounded-none bg-transparent border-0 text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300 font-medium tracking-[0.2em] uppercase text-xs group transition-all duration-300 btn-glow disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ textShadow: "0 0 20px rgba(0,229,255,0.4)" }}
                 data-testid="button-subscribe"
               >
-                Request Access
+                {isSubmitting ? "Processing..." : "Request Access"}
                 <ArrowRight className="w-3 h-3 ml-2 group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </form>
@@ -462,16 +484,13 @@ export default function LandingPage() {
               </motion.a>
 
               <div className="flex gap-6">
-                {[
-                  { icon: SiInstagram, link: "#", label: "Instagram" },
-                  { icon: SiX, link: "#", label: "X/Twitter" },
-                  { icon: SiTiktok, link: "#", label: "TikTok" }
-                ].map(({ icon: Icon, link, label }) => (
+                {SOCIAL_LINKS.map(({ icon: Icon, link, label }) => (
                   <motion.a
                     key={label}
                     whileHover={{ y: -3 }}
                     href={link}
                     className="flex items-center justify-center w-10 h-10 border border-white/10 hover:border-cyan-400/50 rounded-none glass group transition-all duration-300"
+                    aria-label={label}
                     title={label}
                   >
                     <Icon className="w-4 h-4 text-white/40 group-hover:text-cyan-400 transition-colors" />
@@ -577,17 +596,14 @@ export default function LandingPage() {
               </motion.div>
 
               <motion.div className="flex gap-6">
-                {[
-                  { icon: SiInstagram, label: "instagram" },
-                  { icon: SiX, label: "twitter" },
-                  { icon: SiTiktok, label: "tiktok" }
-                ].map(({ icon: Icon, label }) => (
+                {SOCIAL_LINKS.map(({ icon: Icon, label, link }) => (
                   <motion.a 
                     key={label}
                     whileHover={{ y: -2, scale: 1.15 }}
                     whileTap={{ scale: 0.95 }}
-                    href="#" 
+                    href={link}
                     className="text-white/20 hover:text-cyan-400 transition-colors duration-300" 
+                    aria-label={label}
                     data-testid={`link-${label}`}
                   >
                     <Icon className="w-4 h-4" />

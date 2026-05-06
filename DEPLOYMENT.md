@@ -31,13 +31,14 @@ vercel --prod
 ---
 
 ### **Option 2: GitHub Integration (Best for Teams)**
-1. Push code to GitHub:
+1. **Create a new repository** on GitHub at github.com/new named `arvus`. Keep it empty (do not add a README or License).
+2. Push code from your terminal:
 ```bash
 git init
 git add .
 git commit -m "Initial commit - ARVUS landing page"
 git branch -M main
-git remote add origin https://github.com/https://github.com/arunpratapsingh052-code/arvus-landing.git
+git remote add origin https://github.com/arunpratapsingh052-code/arvus.git
 git push -u origin main
 ```
 
@@ -47,6 +48,16 @@ git push -u origin main
    - Select framework: **Vite**
    - Vercel auto-detects config
    - Click Deploy!
+
+---
+
+### **Option 3: GitHub Actions (Automated)**
+The project is configured with a GitHub Action in `.github/workflows/deploy.yml`.
+1. Add `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` to your GitHub Repo Secrets.
+2. Every push to `main` will now trigger an automatic production build and deployment.
+3. **Preview Deployments**: Every Pull Request to `main` will trigger a Preview Deployment via `.github/workflows/preview.yml`. Vercel will comment on the PR with a unique preview URL.
+4. Monitor progress in the **Actions** tab of your GitHub repository.
+5. **Quality Gates**: Every Pull Request also triggers `.github/workflows/lint.yml` to ensure code follows ESLint and Prettier standards.
 
 ---
 
@@ -95,7 +106,10 @@ Go to Vercel Project → Settings → Environment Variables
 ## 🔗 Post-Deployment
 
 After deployment, you can:
-1. **Custom Domain**: Settings → Domains → Add custom domain
+1. **Custom Domain**: 
+   - **CLI**: Run `vercel domains add <domain-name>`
+   - **Dashboard**: Settings → Domains → Add custom domain
+   - Follow the DNS verification steps provided by Vercel.
 2. **SSL/TLS**: Auto-enabled
 3. **Analytics**: Vercel → Analytics tab
 4. **Logs**: Vercel → Deployments → Logs
