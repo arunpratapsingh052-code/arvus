@@ -1,10 +1,9 @@
-# 🚀 ARVUS Deployment Guide
+# 🚀 ARVUS Guide
 
-## 1. Push to GitHub
+## 1. Local Dev
 ```bash
-git add .
-git commit -m "Clean repo with only essential files"
-git push origin main
+npm install
+npm run dev
 ```
 
 **What it does:**
@@ -92,7 +91,7 @@ Go to Vercel Project → Settings → Environment Variables
 
 After deployment, you can:
 1. **Custom Domain**: 
-   - **CLI**: Run `vercel domains add <arvus.in>`
+   - **CLI**: Run `vercel domains add <domain-name>`
    - **Dashboard**: Settings → Domains → Add custom domain
    - Follow the DNS verification steps provided by Vercel.
 2. **SSL/TLS**: Auto-enabled
