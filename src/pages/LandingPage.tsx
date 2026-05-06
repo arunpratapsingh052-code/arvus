@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -62,6 +62,7 @@ const SOCIAL_LINKS = [
 export default function LandingPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
@@ -101,6 +102,7 @@ export default function LandingPage() {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 1500));
     
+    setIsSubscribed(true);
     toast({ title: "Access Granted", description: "You are on the ARVUS list." });
     form.reset();
     setIsSubmitting(false);
@@ -329,42 +331,63 @@ export default function LandingPage() {
             Access to the inaugural ARVUS collection is strictly limited. Register now to secure your place.
           </p>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="relative flex flex-col sm:flex-row gap-0 border-accent glass rounded-none bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-500">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="flex-1 relative">
-                    <FormControl>
-                      <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400/40 group-hover:text-cyan-400/60 transition-colors" />
-                        <Input
-                          placeholder="Your email address"
-                          {...field}
-                          className="bg-transparent border-0 border-r border-white/5 h-14 pl-12 text-white/70 placeholder:text-white/20 text-sm rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 hover:border-cyan-500/30 transition-colors"
-                          data-testid="input-email"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage className="absolute -bottom-6 left-4 text-red-400/80 text-xs" />
-                  </FormItem>
-                )}
-              />
-              <motion.button
-                type="submit"
-                disabled={isSubmitting}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="h-14 px-8 rounded-none bg-transparent border-0 text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300 font-medium tracking-[0.2em] uppercase text-xs group transition-all duration-300 btn-glow disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ textShadow: "0 0 20px rgba(0,229,255,0.4)" }}
-                data-testid="button-subscribe"
+          <AnimatePresence mode="wait">
+            {!isSubscribed ? (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
               >
-                {isSubmitting ? "Processing..." : "Request Access"}
-                <ArrowRight className="w-3 h-3 ml-2 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
-            </form>
-          </Form>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="relative flex flex-col sm:flex-row gap-0 border-accent glass rounded-none bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-500">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem className="flex-1 relative">
+                          <FormControl>
+                            <div className="relative">
+                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400/40 group-hover:text-cyan-400/60 transition-colors" />
+                              <Input
+                                placeholder="Your email address"
+                                {...field}
+                                className="bg-transparent border-0 border-r border-white/5 h-14 pl-12 text-white/70 placeholder:text-white/20 text-sm rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 hover:border-cyan-500/30 transition-colors"
+                                data-testid="input-email"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage className="absolute -bottom-6 left-4 text-red-400/80 text-xs" />
+                        </FormItem>
+                      )}
+                    />
+                    <motion.button
+                      type="submit"
+                      disabled={isSubmitting}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="h-14 px-8 rounded-none bg-transparent border-0 text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300 font-medium tracking-[0.2em] uppercase text-xs group transition-all duration-300 btn-glow disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ textShadow: "0 0 20px rgba(0,229,255,0.4)" }}
+                      data-testid="button-subscribe"
+                    >
+                      {isSubmitting ? "Processing..." : "Request Access"}
+                      <ArrowRight className="w-3 h-3 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </motion.button>
+                  </form>
+                </Form>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-8 border border-cyan-500/20 glass"
+              >
+                <p className="text-cyan-400 text-sm tracking-widest uppercase mb-2">Welcome to the inner circle</p>
+                <p className="text-white/40 text-xs font-light">Check your inbox for further instructions.</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </section>
 

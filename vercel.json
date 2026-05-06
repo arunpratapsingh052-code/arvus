@@ -5,9 +5,7 @@
   "framework": "vite",
   "outputDirectory": "dist",
   "env": {
-    "BASE_PATH": {
-      "default": "/"
-    }
+    "BASE_PATH": "/"
   },
   "routes": [
     {

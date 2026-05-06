@@ -1,25 +1,10 @@
-# 🚀 Vercel Deployment Guide - ARVUS Clothing Landing Page
+# 🚀 ARVUS Deployment Guide
 
-## ✅ Project Status
-- ✓ Build: **Successful** (Vite configured)
-- ✓ Output: **dist/** folder ready
-- ✓ Config: **vercel.json** configured
-- ✓ Vercel CLI: **Installed**
-
----
-
-## 📋 Deployment Methods
-
-### **Option 1: Vercel CLI (Recommended)**
+## 1. Push to GitHub
 ```bash
-# Navigate to project
-cd /Users/arunpratapsinghchauhan/Downloads/clothing-landing
-
-# Deploy using CLI
-vercel
-
-# For production deployment
-vercel --prod
+git add .
+git commit -m "Clean repo with only essential files"
+git push origin main
 ```
 
 **What it does:**
@@ -107,7 +92,7 @@ Go to Vercel Project → Settings → Environment Variables
 
 After deployment, you can:
 1. **Custom Domain**: 
-   - **CLI**: Run `vercel domains add <domain-name>`
+   - **CLI**: Run `vercel domains add <arvus.in>`
    - **Dashboard**: Settings → Domains → Add custom domain
    - Follow the DNS verification steps provided by Vercel.
 2. **SSL/TLS**: Auto-enabled
